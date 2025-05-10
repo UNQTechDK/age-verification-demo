@@ -31,43 +31,57 @@ export async function startVerificationFlow() {
   }
 }
 
-export async function startWithPopup(popup?: Window | null) {
+export async function startWithPopup() {
   const config = getConfig();
-
-  // If popup is not provided, open it here (for backward compatibility)
-  let win = popup;
-  if (!win) {
-    win = window.open(
-      "about:blank",
-      "unqverify-popup",
-      "width=500,height=650,noopener,noreferrer"
-    );
-  }
-  if (!win) {
-    console.warn("[UNQVerify] Popup blocked");
-    config.onFailure?.(new Error("Popup blocked"));
-    return;
-  }
+  let popup: Window | null = null;
 
   try {
     const url = buildOidcUrl(config);
     const redirectUrl = await callVerificationApi(url, config.publicKey);
 
-    win.location.href = redirectUrl;
+    popup = window.open(redirectUrl, "unqverify-popup", "width=500,height=650");
+    if (!popup) {
+      console.warn("[UNQVerify] Popup blocked");
+      config.onFailure?.(
+        new Error(
+          "Popup blocked by browser. Please allow popups and try again."
+        )
+      );
+      return;
+    }
 
     const listener = (event: MessageEvent) => {
-      if (event.data?.type === "UNQVERIFY_RESULT") {
-        config.onVerified(event.data.payload);
-        window.dispatchEvent(new CustomEvent("unqverify:updated"));
-        window.removeEventListener("message", listener);
-        win!.close();
+      try {
+        if (event.data?.type === "UNQVERIFY_RESULT") {
+          config.onVerified(event.data.payload);
+          window.dispatchEvent(new CustomEvent("unqverify:updated"));
+          window.removeEventListener("message", listener);
+          if (popup) popup.close();
+        }
+      } catch (eventErr) {
+        console.error("[UNQVerify] Error handling message event:", eventErr);
+        config.onFailure?.(
+          eventErr instanceof Error ? eventErr : new Error(String(eventErr))
+        );
+        if (popup)
+          try {
+            popup.close();
+          } catch (closeErr) {
+            console.error("[UNQVerify] Failed to close popup:", closeErr);
+          }
       }
     };
 
     window.addEventListener("message", listener);
   } catch (err) {
-    win.close();
+    if (popup) {
+      try {
+        popup.close();
+      } catch (closeErr) {
+        console.error("[UNQVerify] Failed to close popup:", closeErr);
+      }
+    }
     console.error("[UNQVerify] Failed to initiate popup verification:", err);
-    config.onFailure?.(err);
+    config.onFailure?.(err instanceof Error ? err : new Error(String(err)));
   }
 }

@@ -47,19 +47,7 @@ export default function Home() {
   };
 
   const handleStartPopup = () => {
-    const popup = window.open(
-      "about:blank",
-      "unqverify-popup",
-      "width=500,height=650,noopener,noreferrer"
-    );
     setErrorMessage("");
-
-    if (!popup) {
-      console.warn("Popup blocked");
-      setErrorMessage("Popup blocked");
-      return;
-    }
-
     init({
       publicKey: import.meta.env.VITE_PUBLIC_KEY,
       ageToVerify,
@@ -75,7 +63,7 @@ export default function Home() {
       },
     });
 
-    startWithPopup(popup);
+    startWithPopup();
   };
 
   return (
@@ -171,7 +159,6 @@ export default function Home() {
                   setVerified(false);
                   setErrorMessage("");
                 }}
-                type="button"
                 className="text-xs underline text-red-400 hover:text-red-300 cursor-pointer transition duration-150"
               >
                 Reset
