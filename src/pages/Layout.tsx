@@ -20,15 +20,42 @@ export default function Layout() {
           {" "}
           <Outlet />
         </main>
-        <footer className="p-4 text-xs text-green-600 text-center">
-          &copy; {new Date().getFullYear()} UNQTech ApS - All rights reserved. |{" "}
-          <a
-            href={"https://www.aldersverificering.dk/"}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Aldersverificering.dk
-          </a>
+        <footer className="p-4 text-xs text-green-600 text-center space-y-2">
+          <p>&copy; {new Date().getFullYear()} UNQTech ApS</p>
+          <div className="space-x-4">
+            <a
+              href="https://www.aldersverificering.dk"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-green-300"
+            >
+              aldersverificering.dk
+            </a>
+            <a
+              href="https://www.npmjs.com/package/@unqtech/age-verification-mitid"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-green-300"
+            >
+              NPM Package
+            </a>
+            <a
+              href="https://github.com/UNQTechDK/unqverify-sdk"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-green-300"
+            >
+              SDK GitHub
+            </a>
+            <a
+              href="https://github.com/UNQTechDK/age-verification-demo"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-green-300"
+            >
+              Demo Repo
+            </a>
+          </div>
         </footer>
       </div>
     </div>
