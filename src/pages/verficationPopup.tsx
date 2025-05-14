@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { handleRedirectResult } from "../packages";
+import { handleRedirectResult } from "@unqtech/age-verification-mitid";
 
 export default function VerifyPopup() {
   useEffect(() => {

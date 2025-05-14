@@ -1,13 +1,7 @@
 import { getCookie } from "../utils/cookies";
 import { VERIFICATION_COOKIE_KEY } from "../constants";
 import { jwtDecode } from "jwt-decode";
-
-type DecodedToken = {
-  ageVerified: boolean;
-  exp: number;
-  userId?: string;
-  idbrokerdk_age_verified: string;
-};
+import type { DecodedToken } from "../types";
 
 export function isVerified(): boolean {
   try {
@@ -15,8 +9,7 @@ export function isVerified(): boolean {
     if (!token) return false;
 
     const decoded = jwtDecode<DecodedToken>(token);
-    // if (!decoded.ageVerified) return false;
-    if (!decoded.idbrokerdk_age_verified) return false;
+    if (!decoded.aldersverificeringdk_verification_result) return false;
 
     const now = Math.floor(Date.now() / 1000);
     if (decoded.exp < now) return false;

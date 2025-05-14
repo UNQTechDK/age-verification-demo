@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { handleRedirectResult } from "../packages";
+import { handleRedirectResult } from "@unqtech/age-verification-mitid";
 
 export default function VerificationResult() {
   const [status, setStatus] = useState<"verifying" | "success" | "error">(
@@ -20,7 +20,7 @@ export default function VerificationResult() {
         console.log("✅ Verified:", payload);
         setStatus("success");
 
-        // Clean up the URL
+        //Clean up the URL
         url.searchParams.delete("jwt");
         window.history.replaceState({}, document.title, url.toString());
 
@@ -36,6 +36,7 @@ export default function VerificationResult() {
         setStatus("error");
         console.error("❌ Verification failed:", err);
         alert("Verification failed. Please try again.");
+
         // Clean up the URL
         url.searchParams.delete("jwt");
         window.history.replaceState({}, document.title, url.toString());
