@@ -26,6 +26,26 @@ export default function Home() {
     return () => window.removeEventListener("unqverify:updated", handler);
   }, []);
 
+  useEffect(() => {
+    const handlePopupMessage = (event: MessageEvent) => {
+      if (event.data?.type === "UNQVERIFY_RESULT") {
+        console.log(
+          "✅ Received popup verification result:",
+          event.data.payload
+        );
+        // Give priority to popup message - clear any error state
+        setTimeout(() => {
+          setLoading(false);
+          setVerified(true);
+          setErrorMessage("");
+        }, 100);
+      }
+    };
+
+    window.addEventListener("message", handlePopupMessage);
+    return () => window.removeEventListener("message", handlePopupMessage);
+  }, []);
+
   const handleStartRedirect = () => {
     setLoading(true);
     setErrorMessage("");
@@ -67,14 +87,26 @@ export default function Home() {
       ageToVerify,
       redirectUri: window.location.origin + "/verify-popup",
       onVerified: (payload) => {
-        console.log("✅ Verified via popup:", payload);
+        console.log("✅ Verified via popup (SDK callback):", payload);
         setLoading(false);
         setVerified(true);
       },
       onFailure: () => {
-        console.warn("❌ Verification failed");
-        setLoading(false);
-        setErrorMessage("Verification failed");
+        // Don't immediately show error - wait for postMessage from popup
+        console.warn("⚠️ Popup closed or SDK reported failure");
+        // Delay to give postMessage time to arrive
+        setTimeout(() => {
+          if (isVerified()) {
+            // Verification actually succeeded, just UI state was delayed
+            setLoading(false);
+            setVerified(true);
+            setErrorMessage("");
+          } else {
+            // Real failure
+            setLoading(false);
+            setErrorMessage("Verification failed");
+          }
+        }, 500);
       },
     });
 
