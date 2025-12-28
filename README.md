@@ -59,6 +59,42 @@ npm run dev
 
 ---
 
+## 🧪 Testing with MitID
+
+This demo uses **test mode** credentials only. Production MitID credentials will not work in this demo environment.
+
+### Getting Test Credentials
+
+To complete the verification flow, you need MitID test credentials from the official test tool:
+
+**👉 [pp.mitid.dk](https://pp.mitid.dk/)**
+
+### How to Test
+
+1. **Get test credentials** from [pp.mitid.dk](https://pp.mitid.dk/)
+2. **Configure the demo**: Choose your verification mode (Redirect or Popup) and set the age to verify
+3. **Start verification**: Click "▶ Start Verification"
+4. **Use test credentials**: When redirected to MitID, use the test credentials from step 1
+5. **Complete verification**: After successful authentication, you'll be redirected back to the demo
+
+### Test vs Production Keys
+
+- **Test keys** start with `pk_test_` and route to the test API (`test.api.aldersverificering.dk`)
+- **Production keys** start with `pk_live_` and require a paid subscription from [aldersverificering.dk](https://www.aldersverificering.dk/)
+- Test credentials from pp.mitid.dk **only work with test keys**
+- Real MitID accounts **only work with production keys**
+
+### Verification Modes
+
+This demo showcases two integration modes:
+
+- **Redirect Mode**: Full page redirect to MitID (recommended for mobile)
+- **Popup Mode**: Opens MitID in a popup window (desktop only)
+
+Choose the mode that best fits your application's user experience.
+
+---
+
 ## 📦 SDK
 
 This demo uses the official UNQTech SDK:

@@ -4,7 +4,7 @@ import Home from "./pages/home";
 import ReactDOM from "react-dom/client";
 import VerificationResult from "./pages/verificationResult";
 import Layout from "./pages/Layout";
-import VerifyPopup from "./pages/verficationPopup";
+import VerifyPopup from "./pages/verificationPopup";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <BrowserRouter>

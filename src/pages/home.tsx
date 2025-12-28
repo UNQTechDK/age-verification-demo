@@ -54,7 +54,7 @@ export default function Home() {
 
     if (!popup) {
       setErrorMessage(
-        "Popup blocked by the browser. Please enable popups and try again."
+        "Popup blocked. Please enable popups in your browser and try again."
       );
       return;
     }
@@ -88,6 +88,28 @@ export default function Home() {
           <h1 className="text-2xl text-blue-500 dark:text-green-300 tracking-widest text-center">
             ░░ UNQVerify Demo ░░
           </h1>
+
+          <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-400 dark:border-amber-600 rounded p-4 space-y-2">
+            <div className="flex items-start gap-2">
+              <div className="flex-1">
+                <h2 className="font-bold text-amber-800 dark:text-amber-300 text-sm uppercase tracking-wide mb-1">
+                  Test Mode Active
+                </h2>
+                <p className="text-amber-700 dark:text-amber-400 text-xs leading-relaxed">
+                  This demo uses test credentials. To complete verification, you
+                  need MitID test credentials from the official test tool.
+                </p>
+                <a
+                  href="https://pp.mitid.dk/test-tool/frontend/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 mt-2 text-sm font-semibold text-amber-800 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-200 underline"
+                >
+                  → Get test credentials at pp.mitid.dk ↗
+                </a>
+              </div>
+            </div>
+          </div>
 
           <div className="space-y-4">
             <div>
@@ -126,8 +148,13 @@ export default function Home() {
               </label>
               <input
                 type="number"
+                min="1"
+                max="120"
                 value={ageToVerify}
-                onChange={(e) => setAgeToVerify(Number(e.target.value))}
+                onChange={(e) => {
+                  const val = Number(e.target.value);
+                  if (val >= 1 && val <= 120) setAgeToVerify(val);
+                }}
                 className="w-full dark:bg-black  text-blue-500 dark:text-green-300 border border-violet-700 dark:border-green-500 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-violet-400 dark:focus:ring-green-500"
               />
             </div>
@@ -175,7 +202,22 @@ export default function Home() {
               </>
             )}
             {errorMessage && (
-              <p className="text-red-400 text-sm mt-2">❌ {errorMessage}</p>
+              <div className="bg-red-50 dark:bg-red-900/20 border border-red-400 dark:border-red-600 rounded p-3 mt-2">
+                <p className="text-red-600 dark:text-red-400 text-sm font-semibold">
+                  ❌ {errorMessage}
+                </p>
+                <p className="text-red-600 dark:text-red-400 text-xs mt-1">
+                  Need test credentials?{" "}
+                  <a
+                    href="https://pp.mitid.dk/test-tool/frontend/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline hover:text-red-500 dark:hover:text-red-300"
+                  >
+                    Visit pp.mitid.dk ↗
+                  </a>
+                </p>
+              </div>
             )}
           </div>
         </div>
