@@ -35,12 +35,15 @@ export default function VerificationResult() {
       onFailure: (err) => {
         setStatus("error");
         console.error("❌ Verification failed:", err);
-        alert("Verification failed. Please try again.");
 
         // Clean up the URL
         url.searchParams.delete("jwt");
         window.history.replaceState({}, document.title, url.toString());
-        window.location.href = "/";
+
+        // Redirect after showing error
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 3000);
       },
     });
   }, []);
@@ -51,7 +54,24 @@ export default function VerificationResult() {
       {status === "success" && (
         <p>✅ Verification successful! You can close this window.</p>
       )}
-      {status === "error" && <p>❌ Verification failed. Please try again.</p>}
+      {status === "error" && (
+        <div className="space-y-2">
+          <p className="text-red-500 font-semibold">
+            ❌ Verification failed. Please try again.
+          </p>
+          <p className="text-xs">
+            Need test credentials?{" "}
+            <a
+              href="https://pp.mitid.dk/test-tool/frontend/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:opacity-80"
+            >
+              Visit pp.mitid.dk ↗
+            </a>
+          </p>
+        </div>
+      )}
     </main>
   );
 }

@@ -55,6 +55,14 @@ export default function Layout() {
             >
               Demo Repo
             </a>
+            <a
+              href="https://pp.mitid.dk/test-tool/frontend/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-green-300 font-semibold"
+            >
+              🧪 MitID Test Tool ↗
+            </a>
           </div>
         </footer>
       </div>
