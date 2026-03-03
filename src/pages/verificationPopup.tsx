@@ -3,6 +3,10 @@ import { handleRedirectResult } from "@unqtech/age-verification-mitid";
 
 export default function VerifyPopup() {
   useEffect(() => {
+    document.title = "Verifying – UNQVerify";
+  }, []);
+
+  useEffect(() => {
     handleRedirectResult({
       onVerified: (payload) => {
         console.log("✅ Verified via popup:", payload);

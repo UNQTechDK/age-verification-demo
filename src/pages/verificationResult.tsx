@@ -7,6 +7,11 @@ export default function VerificationResult() {
   );
 
   useEffect(() => {
+    document.title = "Verifying Identity – UNQVerify";
+    return () => { document.title = "UNQVerify – MitID Age Verification SDK Demo"; };
+  }, []);
+
+  useEffect(() => {
     const url = new URL(window.location.href);
     const token = url.searchParams.get("jwt");
 

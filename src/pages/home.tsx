@@ -115,7 +115,7 @@ export default function Home() {
 
   return (
     <div>
-      <main className=" flex flex-col items-center justify-center bg-white dark:bg-black text-blue-500 dark:text-green-400 p-6 font-mono transition-colors">
+      <section className="flex flex-col items-center justify-center bg-white dark:bg-black text-blue-500 dark:text-green-400 p-6 font-mono transition-colors">
         <div className="w-full max-w-2xl bg-white dark:bg-[#0d0d0d] border border-violet-700 dark:border-green-500 p-6 rounded shadow-lg space-y-6">
           <h1 className="text-2xl text-blue-500 dark:text-green-300 tracking-widest text-center">
             ░░ UNQVerify Demo ░░
@@ -254,10 +254,7 @@ export default function Home() {
           </div>
         </div>
 
-        <footer className="text-xs  dark:text-green-500 mt-8 opacity-60">
-          MITID Age Verification SDK · UNQTech © {new Date().getFullYear()}
-        </footer>
-      </main>
+      </section>
     </div>
   );
 }
@@ -275,7 +272,7 @@ const LoaderSVG = () => (
       cy="12"
       r="10"
       stroke="currentColor"
-      stroke-width="4"
+      strokeWidth={4}
     ></circle>
     <path
       className="opacity-75"
