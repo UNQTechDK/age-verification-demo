@@ -11,6 +11,7 @@ export default function Layout() {
           <span>UNQVerify SDK Demo</span>
           <button
             onClick={() => setDarkMode(!darkMode)}
+            aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
             className="text-xs px-3 py-1 border border-green-400 rounded hover:bg-green-700 hover:text-black dark:hover:bg-green-200 dark:hover:text-black transition-colors"
           >
             {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
