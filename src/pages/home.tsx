@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   getVerifiedAge,
   init,
@@ -10,7 +10,6 @@ import {
 } from "@unqtech/age-verification-mitid";
 
 export default function Home() {
-  const lastPopupJwtRef = useRef<string | null>(null);
   const [verified, setVerified] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,18 +25,6 @@ export default function Home() {
     const handler = () => setVerified(isVerified());
     window.addEventListener("unqverify:updated", handler);
     return () => window.removeEventListener("unqverify:updated", handler);
-  }, []);
-
-  useEffect(() => {
-    const handleDebugJwtMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
-      if (event.data?.type !== "UNQVERIFY_DEBUG_JWT") return;
-      lastPopupJwtRef.current =
-        typeof event.data.jwt === "string" ? event.data.jwt : null;
-    };
-
-    window.addEventListener("message", handleDebugJwtMessage);
-    return () => window.removeEventListener("message", handleDebugJwtMessage);
   }, []);
 
   const getOutcomeMessage = (outcome: VerificationOutcome): string => {
@@ -64,7 +51,6 @@ export default function Home() {
   const handleStartRedirect = () => {
     setLoading(true);
     setErrorMessage("");
-    lastPopupJwtRef.current = null;
 
     init({
       publicKey: import.meta.env.VITE_PUBLIC_KEY,
@@ -138,9 +124,7 @@ export default function Home() {
         setErrorMessage(getOutcomeMessage(outcome));
       },
       onError: (outcome) => {
-        console.error("❌ Popup verification error:", outcome, {
-          jwt: lastPopupJwtRef.current,
-        });
+        console.error("❌ Popup verification error:", outcome);
         setLoading(false);
         setVerified(false);
         setErrorMessage(getOutcomeMessage(outcome));

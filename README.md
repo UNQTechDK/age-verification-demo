@@ -21,6 +21,7 @@ This app demonstrates how to use the UNQVerify SDK to perform secure, cookie-bas
 - ✅ Dark/light mode toggle
 - ✅ Dynamic `ageToVerify` and `redirectUri`
 - ✅ Full integration with the public `@unqtech/age-verification-mitid` SDK
+- ✅ Granular SDK outcome handling (`onDenied`, `onCancelled`, `onError`)
 - ✅ Cookie persistence & token decoding
 - ✅ Environment-variable-powered configuration
 
@@ -76,6 +77,13 @@ To complete the verification flow, you need MitID test credentials from the offi
 3. **Start verification**: Click "▶ Start Verification"
 4. **Use test credentials**: When redirected to MitID, use the test credentials from step 1
 5. **Complete verification**: After successful authentication, you'll be redirected back to the demo
+
+### Expected Outcomes
+
+- **Verified**: User meets the required age and verification succeeds
+- **Denied**: User is authenticated but does not meet the required age
+- **Cancelled**: Popup closed / verification cancelled / popup timeout
+- **Error**: Technical issues (for example token/network issues)
 
 ### Test vs Production Keys
 

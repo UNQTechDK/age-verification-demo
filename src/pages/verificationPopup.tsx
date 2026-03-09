@@ -2,22 +2,6 @@ import { useEffect } from "react";
 import { handleRedirectResult } from "@unqtech/age-verification-mitid";
 
 export default function VerifyPopup() {
-  const logIncomingJwtForDebug = () => {
-    const url = new URL(window.location.href);
-    const token = url.searchParams.get("jwt");
-
-    console.log("[UNQVerify debug] jwt:", token);
-
-    try {
-      window.opener?.postMessage(
-        { type: "UNQVERIFY_DEBUG_JWT", jwt: token },
-        window.location.origin,
-      );
-    } catch {
-      // Ignore cross-window debug messaging issues.
-    }
-  };
-
   const closePopup = () => {
     try {
       window.close();
@@ -31,8 +15,6 @@ export default function VerifyPopup() {
   }, []);
 
   useEffect(() => {
-    logIncomingJwtForDebug();
-
     handleRedirectResult({
       onVerified: (payload) => {
         console.log("✅ Verified via popup:", payload);
