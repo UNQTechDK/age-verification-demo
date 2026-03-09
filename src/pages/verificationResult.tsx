@@ -50,6 +50,9 @@ export default function VerificationResult() {
           window.location.href = "/";
         }, 3000);
       },
+      onError: (outcome) => {
+        console.error("❌ Redirect technical error:", outcome);
+      },
     });
   }, []);
 

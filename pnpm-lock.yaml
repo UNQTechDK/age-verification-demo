@@ -12,8 +12,8 @@ importers:
         specifier: ^4.1.18
         version: 4.1.18(vite@6.3.5(jiti@2.6.1)(lightningcss@1.30.2))
       '@unqtech/age-verification-mitid':
-        specifier: 0.3.1
-        version: 0.3.1
+        specifier: 0.4.1
+        version: 0.4.1
       react:
         specifier: ^19.2.3
         version: 19.2.3
@@ -663,8 +663,8 @@ packages:
     resolution: {integrity: sha512-1rYQTCLFFzOI5Nl0c8LUpJT8HxpwVRn9E4CkMsYfuN6ctmQqExjSTzzSk0Tz2apmXy7WU6/6fyaZVVA/thPN+w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@unqtech/age-verification-mitid@0.3.1':
-    resolution: {integrity: sha512-EgzOR2mIst0sQU1nslgcQRuJXD4Dszc9lFGRny3kEq8dOtGg/7NbEjZdQFwBian1eFzayw1BvUQrXle2lmppwQ==}
+  '@unqtech/age-verification-mitid@0.4.1':
+    resolution: {integrity: sha512-ke16K3bWn5GGzXjV2PFmQc9OICB5dx+xj/fWx9LfS8sNXaLKgV9EMV9DD/OOzKjCeIN6Pdh4Amz7soQi0aREBA==}
     engines: {node: '>=16'}
 
   '@vitejs/plugin-react@4.4.1':
@@ -2154,7 +2154,7 @@ snapshots:
       '@typescript-eslint/types': 8.32.0
       eslint-visitor-keys: 4.2.0
 
-  '@unqtech/age-verification-mitid@0.3.1':
+  '@unqtech/age-verification-mitid@0.4.1':
     dependencies:
       jose: 6.1.3
       jwt-decode: 4.0.0

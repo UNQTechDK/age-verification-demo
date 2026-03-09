@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   getVerifiedAge,
   init,
@@ -6,9 +6,11 @@ import {
   resetVerification,
   startVerificationWithPopup,
   startVerificationWithRedirect,
+  type VerificationOutcome,
 } from "@unqtech/age-verification-mitid";
 
 export default function Home() {
+  const lastPopupJwtRef = useRef<string | null>(null);
   const [verified, setVerified] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -27,28 +29,42 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const handlePopupMessage = (event: MessageEvent) => {
-      if (event.data?.type === "UNQVERIFY_RESULT") {
-        console.log(
-          "✅ Received popup verification result:",
-          event.data.payload
-        );
-        // Give priority to popup message - clear any error state
-        setTimeout(() => {
-          setLoading(false);
-          setVerified(true);
-          setErrorMessage("");
-        }, 100);
-      }
+    const handleDebugJwtMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.data?.type !== "UNQVERIFY_DEBUG_JWT") return;
+      lastPopupJwtRef.current =
+        typeof event.data.jwt === "string" ? event.data.jwt : null;
     };
 
-    window.addEventListener("message", handlePopupMessage);
-    return () => window.removeEventListener("message", handlePopupMessage);
+    window.addEventListener("message", handleDebugJwtMessage);
+    return () => window.removeEventListener("message", handleDebugJwtMessage);
   }, []);
+
+  const getOutcomeMessage = (outcome: VerificationOutcome): string => {
+    switch (outcome.code) {
+      case "UNDER_AGE":
+        return "Age requirement not met.";
+      case "POPUP_CLOSED":
+      case "USER_CANCELLED":
+      case "POPUP_TIMEOUT":
+        return "Verification was cancelled before completion.";
+      case "POPUP_BLOCKED":
+        return "Popup blocked. Please allow popups and try again.";
+      case "NETWORK_ERROR":
+        return "Network error during verification. Please try again.";
+      case "TOKEN_INVALID":
+        return "Verification token was invalid. Please try again.";
+      case "UNTRUSTED_ORIGIN":
+        return "Blocked verification message from untrusted origin.";
+      default:
+        return outcome.message || "Verification failed.";
+    }
+  };
 
   const handleStartRedirect = () => {
     setLoading(true);
     setErrorMessage("");
+    lastPopupJwtRef.current = null;
 
     init({
       publicKey: import.meta.env.VITE_PUBLIC_KEY,
@@ -59,10 +75,27 @@ export default function Home() {
         setLoading(false);
         setVerified(true);
       },
-      onFailure: () => {
-        console.warn("❌ Verification failed");
+      onDenied: (outcome) => {
+        console.warn("⚠️ Verification denied:", outcome);
         setLoading(false);
-        setErrorMessage("Verification failed");
+        setVerified(false);
+        setErrorMessage(getOutcomeMessage(outcome));
+      },
+      onCancelled: (outcome) => {
+        console.warn("⚠️ Verification cancelled:", outcome);
+        setLoading(false);
+        setVerified(false);
+        setErrorMessage(getOutcomeMessage(outcome));
+      },
+      onError: (outcome) => {
+        console.error("❌ Verification error:", outcome);
+        setLoading(false);
+        setVerified(false);
+        setErrorMessage(getOutcomeMessage(outcome));
+      },
+      onFailure: (error) => {
+        // Legacy callback is still emitted by the SDK for compatibility.
+        console.warn("⚠️ Legacy onFailure callback:", error);
       },
     });
 
@@ -74,7 +107,7 @@ export default function Home() {
 
     if (!popup) {
       setErrorMessage(
-        "Popup blocked. Please enable popups in your browser and try again."
+        "Popup blocked. Please enable popups in your browser and try again.",
       );
       return;
     }
@@ -90,23 +123,30 @@ export default function Home() {
         console.log("✅ Verified via popup (SDK callback):", payload);
         setLoading(false);
         setVerified(true);
+        setErrorMessage("");
+      },
+      onDenied: (outcome) => {
+        console.warn("⚠️ Popup verification denied:", outcome);
+        setLoading(false);
+        setVerified(false);
+        setErrorMessage(getOutcomeMessage(outcome));
+      },
+      onCancelled: (outcome) => {
+        console.warn("⚠️ Popup verification cancelled:", outcome);
+        setLoading(false);
+        setVerified(false);
+        setErrorMessage(getOutcomeMessage(outcome));
+      },
+      onError: (outcome) => {
+        console.error("❌ Popup verification error:", outcome, {
+          jwt: lastPopupJwtRef.current,
+        });
+        setLoading(false);
+        setVerified(false);
+        setErrorMessage(getOutcomeMessage(outcome));
       },
       onFailure: () => {
-        // Don't immediately show error - wait for postMessage from popup
-        console.warn("⚠️ Popup closed or SDK reported failure");
-        // Delay to give postMessage time to arrive
-        setTimeout(() => {
-          if (isVerified()) {
-            // Verification actually succeeded, just UI state was delayed
-            setLoading(false);
-            setVerified(true);
-            setErrorMessage("");
-          } else {
-            // Real failure
-            setLoading(false);
-            setErrorMessage("Verification failed");
-          }
-        }, 500);
+        // Intentionally no-op: granular callbacks above handle UI state.
       },
     });
 
@@ -253,7 +293,6 @@ export default function Home() {
             )}
           </div>
         </div>
-
       </section>
     </div>
   );
