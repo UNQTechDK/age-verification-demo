@@ -168,10 +168,10 @@ export default function Home() {
           </div>
 
           <div className="space-y-4">
-            <div>
-              <label className="block uppercase text-sm mb-1">
+            <fieldset>
+              <legend className="block uppercase text-sm mb-1">
                 Verification Mode
-              </label>
+              </legend>
               <div className="flex items-center gap-4">
                 <label>
                   <input
@@ -196,14 +196,21 @@ export default function Home() {
                   Popup
                 </label>
               </div>
-            </div>
+            </fieldset>
 
             <div>
-              <label className="block uppercase text-sm mb-1">
+              <label
+                htmlFor="age-to-verify"
+                className="block uppercase text-sm mb-1"
+              >
                 Age to Verify
               </label>
               <input
+                id="age-to-verify"
+                name="ageToVerify"
                 type="number"
+                inputMode="numeric"
+                autoComplete="off"
                 min="1"
                 max="120"
                 value={ageToVerify}
@@ -215,33 +222,52 @@ export default function Home() {
               />
             </div>
 
-            <div className="flex items-center gap-4 mt-6">
-              <button
-                onClick={
-                  mode === "popup" ? handleStartPopup : handleStartRedirect
-                }
-                disabled={verified || loading}
-                className="cursor-pointer transition duration-150 bg-blue-400 dark:bg-green-500 text-black px-4 py-2 rounded uppercase tracking-wider text-sm font-bold hover:bg-blue-200 dark:hover:bg-green-400 disabled:opacity-30"
-              >
-                {loading ? (
-                  <span className="flex items-center">
-                    <LoaderSVG /> Loading
-                  </span>
-                ) : verified ? (
-                  "✔ Already Verified"
-                ) : (
-                  "▶ Start Verification"
-                )}
-              </button>
+            {mode === "popup" && !verified && (
+              <p className="text-xs text-slate-600 dark:text-slate-300">
+                Verification opens in a new window.
+              </p>
+            )}
+
+            <div className="verification-actions flex items-center gap-4 mt-6">
+              {verified ? (
+                <span className="rounded border border-green-600 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800 dark:border-green-500 dark:bg-green-950 dark:text-green-300">
+                  ✔ Already verified
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={
+                    mode === "popup" ? handleStartPopup : handleStartRedirect
+                  }
+                  disabled={loading}
+                  aria-busy={loading}
+                  className="mitid-cta"
+                >
+                  <img
+                    className="mitid-cta__logo"
+                    src="/mitid-logo-white.png"
+                    alt=""
+                    width="732"
+                    height="198"
+                    aria-hidden="true"
+                  />
+                  <span translate="no">Confirm with MitID</span>
+                </button>
+              )}
+
+              <span className="sr-only" role="status" aria-live="polite">
+                {loading ? "Verification is starting" : ""}
+              </span>
 
               <button
+                type="button"
                 onClick={() => {
                   resetVerification();
                   setVerified(false);
                   setLoading(false);
                   setErrorMessage("");
                 }}
-                className="text-xs underline text-red-400 hover:text-red-300 cursor-pointer transition duration-150"
+                className="verification-reset text-xs underline text-red-400 hover:text-red-300 cursor-pointer transition duration-150"
               >
                 Reset
               </button>
@@ -281,26 +307,3 @@ export default function Home() {
     </div>
   );
 }
-
-const LoaderSVG = () => (
-  <svg
-    className="mr-3 -ml-1 size-5 animate-spin text-white"
-    xmlns="http://www.w3.org/2000/svg"
-    fill="none"
-    viewBox="0 0 24 24"
-  >
-    <circle
-      className="opacity-25"
-      cx="12"
-      cy="12"
-      r="10"
-      stroke="currentColor"
-      strokeWidth={4}
-    ></circle>
-    <path
-      className="opacity-75"
-      fill="currentColor"
-      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-    ></path>
-  </svg>
-);
