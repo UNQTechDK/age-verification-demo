@@ -33,6 +33,14 @@ export default function Layout() {
               aldersverificering.dk
             </a>
             <a
+              href="https://www.aldersverificering.dk/docs/sdk/react"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-green-300 font-semibold"
+            >
+              UNQVerify Integration Documentation
+            </a>
+            <a
               href="https://www.npmjs.com/package/@unqtech/age-verification-mitid"
               target="_blank"
               rel="noopener noreferrer"
