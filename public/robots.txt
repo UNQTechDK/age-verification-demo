@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.aldersverificering.dk/sitemap.xml
+Sitemap: https://age-verification-demo.vercel.app/sitemap.xml
