@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import { handleRedirectResult } from "@unqtech/age-verification-mitid";
 
 export default function VerificationResult() {
-  const [status, setStatus] = useState<"verifying" | "success" | "error">(
-    "verifying"
-  );
+  const [status, setStatus] = useState<
+    "verifying" | "success" | "error" | "not-verified"
+  >("verifying");
 
   useEffect(() => {
     document.title = "Verifying Identity – UNQVerify";
-    return () => { document.title = "UNQVerify – MitID Age Verification SDK Demo"; };
+    return () => {
+      document.title = "UNQVerify – MitID Age Verification SDK Demo";
+    };
   }, []);
 
   useEffect(() => {
@@ -19,6 +21,7 @@ export default function VerificationResult() {
       window.location.href = "/";
       return;
     }
+    let outcomeHandled = false;
 
     handleRedirectResult({
       onVerified: (payload) => {
@@ -37,7 +40,24 @@ export default function VerificationResult() {
           window.location.href = "/";
         }, 2000);
       },
+      onDenied: (outcome) => {
+        // Covers both a genuine under-age result and a user-cancelled MitID
+        // flow (broker redirects with error=access_denied on cancel) — the
+        // JWT carries no signal to tell those apart, so both read as "not verified."
+        outcomeHandled = true;
+        setStatus("not-verified");
+        console.log("🚫 Not verified:", outcome);
+
+        // Clean up the URL
+        url.searchParams.delete("jwt");
+        window.history.replaceState({}, document.title, url.toString());
+
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 3000);
+      },
       onFailure: (err) => {
+        if (outcomeHandled) return;
         setStatus("error");
         console.error("❌ Verification failed:", err);
 
@@ -61,6 +81,11 @@ export default function VerificationResult() {
       {status === "verifying" && <p>Verifying your identity...</p>}
       {status === "success" && (
         <p>✅ Verification successful! You can close this window.</p>
+      )}
+      {status === "not-verified" && (
+        <p className="text-gray-600 dark:text-gray-300 font-semibold">
+          Not verified.
+        </p>
       )}
       {status === "error" && (
         <div className="space-y-2">
