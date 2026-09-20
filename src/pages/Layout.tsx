@@ -38,8 +38,11 @@ export default function Layout() {
             >
               SDK-konsol
             </Link>
-            <a href="https://www.aldersverificering.dk/docs/getting-started">
-              Dokumentation <span aria-hidden="true">↗</span>
+            <a
+              className="demo-nav-signup"
+              href="https://www.aldersverificering.dk/opret-konto"
+            >
+              Opret testkonto <span aria-hidden="true">↗</span>
             </a>
           </nav>
           <a className="demo-header__cart" href="/#kurv">
@@ -77,6 +80,9 @@ export default function Layout() {
           </div>
           <div>
             <p className="demo-footer__label">Ressourcer</p>
+            <a href="https://www.aldersverificering.dk/docs/getting-started">
+              Dokumentation
+            </a>
             <a href="https://www.aldersverificering.dk/docs/sdk/react">
               Integrationsguide
             </a>

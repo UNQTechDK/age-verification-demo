@@ -129,6 +129,16 @@ a {
   text-underline-offset: 9px;
   text-decoration-thickness: 1px;
 }
+.demo-header nav a.demo-nav-signup {
+  padding: 0 14px;
+  border: 1px solid var(--green);
+  color: var(--green);
+  font-weight: 600;
+}
+.demo-header nav a.demo-nav-signup:hover {
+  background: #f1f5f2;
+  text-decoration: none;
+}
 .demo-header__cart {
   display: flex;
   align-items: center;
@@ -672,6 +682,43 @@ a {
   font-size: 11px;
   text-underline-offset: 5px;
 }
+.store-signup {
+  padding-block: 64px;
+  border-bottom: 1px solid var(--line);
+}
+.store-signup__inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 48px;
+}
+.store-signup h2 {
+  max-width: 570px;
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(28px, 3vw, 40px);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: -0.035em;
+}
+.store-signup__description {
+  max-width: 520px;
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.8;
+}
+.store-signup__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.store-signup__actions p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
 .demo-footer {
   background: white;
   color: var(--muted);
@@ -895,13 +942,26 @@ a {
     min-height: 105px;
   }
   .demo-header nav {
-    gap: 28px;
+    gap: 18px;
   }
   .demo-header nav a {
     font-size: 11px;
   }
   .demo-header__cart {
     font-size: 11px;
+  }
+  .demo-header nav a.demo-nav-signup {
+    padding-inline: 10px;
+  }
+  .store-signup {
+    padding-block: 40px;
+  }
+  .store-signup__inner {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .store-signup__actions {
+    align-items: flex-start;
   }
   .store-hero {
     padding-block: 16px;
