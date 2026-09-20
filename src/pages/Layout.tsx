@@ -9,22 +9,26 @@ export default function Layout() {
         Gå til hovedindhold
       </a>
       <header className="demo-header">
+        <div className="demo-announcement">
+          En demobutik fra UNQVerify <span aria-hidden="true">·</span> Prøv
+          alderskontrol med MitID
+        </div>
         <div className="store-shell demo-header__inner">
           <Link className="demo-brand" to="/" aria-label="UNQVerify demobutik">
-            <span className="demo-brand__mark" aria-hidden="true">
-              U
-            </span>
-            <span>
-              <strong>NORDHANDEL</strong>
-              <small>en UNQVerify-demobutik</small>
-            </span>
+            <img
+              src="/unqverify-logo.png"
+              alt="UNQVerify"
+              width="1069"
+              height="231"
+            />
+            <span className="demo-brand__label">DEMOBUTIK</span>
           </Link>
           <nav aria-label="Primær navigation">
             <Link
               to="/"
               aria-current={location.pathname === "/" ? "page" : undefined}
             >
-              Demobutik
+              Butikken
             </Link>
             <Link
               to="/developer"
@@ -38,15 +42,19 @@ export default function Layout() {
               Dokumentation <span aria-hidden="true">↗</span>
             </a>
           </nav>
-          <a
-            className="demo-header__badge"
-            href="https://www.aldersverificering.dk"
-          >
-            Testmiljø
+          <a className="demo-header__cart" href="/#kurv">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              aria-hidden="true"
+            >
+              <path d="M5 7h14l1 14H4L5 7Z" />
+              <path d="M8 8V6a4 4 0 0 1 8 0v2" />
+            </svg>
+            <span>Din kurv</span>
           </a>
-          <Link className="demo-header__mobile-link" to="/developer">
-            SDK
-          </Link>
         </div>
       </header>
 
@@ -55,6 +63,13 @@ export default function Layout() {
       <footer className="demo-footer">
         <div className="store-shell demo-footer__grid">
           <div>
+            <img
+              className="demo-footer__logo"
+              src="/unqverify-logo.png"
+              alt="UNQVerify"
+              width="1069"
+              height="231"
+            />
             <p className="demo-footer__brand">NORDHANDEL</p>
             <p>
               En fungerende referencebutik bygget med UNQVerify og MitID-test.
