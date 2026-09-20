@@ -16,7 +16,6 @@ type Product = {
   price: number;
   age: 16 | 18;
   imagePosition: string;
-  imageZoom: number;
 };
 
 const products: Product[] = [
@@ -26,17 +25,16 @@ const products: Product[] = [
     description: "Lys, alkoholfri demovare med et konfigureret 16-årskrav.",
     price: 42,
     age: 16,
-    imagePosition: "82% 48%",
-    imageZoom: 2.35,
+    imagePosition: "0% 50%",
   },
   {
     id: "aperitif",
     name: "Fjord Aperitif",
-    description: "Fiktiv spiritusvare, der løfter kurvens alderskrav til 18 år.",
+    description:
+      "Fiktiv spiritusvare, der løfter kurvens alderskrav til 18 år.",
     price: 249,
     age: 18,
-    imagePosition: "58% 48%",
-    imageZoom: 2,
+    imagePosition: "50% 50%",
   },
   {
     id: "mint",
@@ -44,8 +42,7 @@ const products: Product[] = [
     description: "Fiktiv nikotinpose til demonstration af et fast 18-årskrav.",
     price: 49,
     age: 18,
-    imagePosition: "94% 78%",
-    imageZoom: 2.7,
+    imagePosition: "100% 50%",
   },
 ];
 
@@ -177,11 +174,7 @@ export default function Home() {
     setOrderComplete(false);
 
     if (mode === "popup") {
-      const popup = window.open(
-        "",
-        "unqverify-popup",
-        "width=500,height=650",
-      );
+      const popup = window.open("", "unqverify-popup", "width=500,height=650");
 
       if (!popup) {
         setLoading(false);
@@ -213,34 +206,28 @@ export default function Home() {
       <section className="store-hero">
         <div className="store-shell store-hero__grid">
           <div className="store-hero__copy">
-            <p className="store-eyebrow">Interaktiv referencebutik</p>
-            <h1>Alderskontrol, hvor den faktisk skal virke.</h1>
+            <p className="store-eyebrow">NORDHANDEL / DEMOKOLLEKTIONEN</p>
+            <h1>
+              God smag.
+              <br />
+              <em>Tryg handel.</em>
+            </h1>
             <p className="store-hero__intro">
-              Læg en demovare i kurven, og se hvordan UNQVerify beregner
-              alderskravet og starter MitID direkte fra checkout.
+              Gå på opdagelse i vores lille demobutik. Vælg dine varer, og oplev
+              en enkel alderskontrol med MitID i checkout.
             </p>
             <div className="store-hero__actions">
               <a className="store-button store-button--primary" href="#varer">
-                Prøv checkout-flowet
+                Se kollektionen <span aria-hidden="true">↗</span>
               </a>
-              <a className="store-text-link" href="/developer">
-                Se SDK-konsollen <span aria-hidden="true">↗</span>
+              <a className="store-text-link" href="#flow-heading">
+                Sådan virker det
               </a>
             </div>
-            <dl className="store-proof">
-              <div>
-                <dt>SDK</dt>
-                <dd>@unqtech/age-verification-mitid</dd>
-              </div>
-              <div>
-                <dt>Miljø</dt>
-                <dd>MitID test</dd>
-              </div>
-              <div>
-                <dt>Data til butikken</dt>
-                <dd>Verificeret alderskrav</dd>
-              </div>
-            </dl>
+            <p className="store-hero__disclaimer">
+              <span aria-hidden="true">◌</span> Fiktive varer. Rigtigt testflow.
+              Ingen betaling.
+            </p>
           </div>
           <figure className="store-hero__visual">
             <img
@@ -251,21 +238,42 @@ export default function Home() {
               fetchPriority="high"
             />
             <figcaption>
-              Fiktive varer · ingen betaling · kun testdata
+              <span>DEN LILLE KOLLEKTION</span>
+              <strong>
+                Nordiske nuancer.
+                <br />
+                En enkel oplevelse.
+              </strong>
             </figcaption>
           </figure>
         </div>
       </section>
 
-      <section className="store-demo" id="varer" aria-labelledby="products-heading">
+      <div className="store-benefits store-shell" aria-label="Om demobutikken">
+        <span>
+          <b aria-hidden="true">01</b> Udvælg dine demovarer
+        </span>
+        <span>
+          <b aria-hidden="true">02</b> Bekræft din alder med MitID
+        </span>
+        <span>
+          <b aria-hidden="true">03</b> Prøv checkout uden betaling
+        </span>
+      </div>
+
+      <section
+        className="store-demo"
+        id="varer"
+        aria-labelledby="products-heading"
+      >
         <div className="store-shell store-demo__heading">
           <div>
-            <p className="store-eyebrow">Vælg et scenarie</p>
-            <h2 id="products-heading">Byg en kurv med et rigtigt alderskrav</h2>
+            <p className="store-eyebrow">ET LILLE, UDVALGT SORTIMENT</p>
+            <h2 id="products-heading">Find dine favoritter.</h2>
           </div>
           <p>
-            Checkout anvender altid det højeste krav i kurven. Bland eksempelvis
-            en 16+ vare med en 18+ vare og se reglen ændre sig.
+            Tre demovarer. To alderskrav. Læg en 18+ vare i kurven, og se
+            alderskravet tilpasse sig automatisk.
           </p>
         </div>
 
@@ -273,25 +281,23 @@ export default function Home() {
           <div className="store-products">
             {products.map((product, index) => (
               <article className="store-product" key={product.id}>
-                <div className="store-product__image">
-                  <img
-                    src="/demo-products-v1.webp"
-                    alt=""
-                    width="1536"
-                    height="1024"
-                    loading="lazy"
-                    style={{
-                      objectPosition: product.imagePosition,
-                      transformOrigin: product.imagePosition,
-                      transform: `scale(${product.imageZoom})`,
-                    }}
-                  />
+                <div
+                  className="store-product__image"
+                  style={{ backgroundPosition: product.imagePosition }}
+                >
                   <span className="store-age-badge">{product.age}+</span>
                   <span className="store-product__number">
-                    0{index + 1}
+                    DEMOVARE / 0{index + 1}
                   </span>
                 </div>
                 <div className="store-product__body">
+                  <p className="store-product__category">
+                    {product.id === "lager"
+                      ? "ALKOHOLFRI LAGER"
+                      : product.id === "aperitif"
+                        ? "APERITIF"
+                        : "NIKOTINPOSER"}
+                  </p>
                   <div className="store-product__title-row">
                     <h3>{product.name}</h3>
                     <p>{formatPrice(product.price)}</p>
@@ -324,6 +330,7 @@ export default function Home() {
                     <button
                       className="store-add-button"
                       type="button"
+                      aria-label={`Læg ${product.name} i kurv`}
                       onClick={() => updateQuantity(product.id, 1)}
                     >
                       Læg i kurv <span aria-hidden="true">+</span>
@@ -334,10 +341,16 @@ export default function Home() {
             ))}
           </div>
 
-          <aside className="store-checkout" aria-labelledby="checkout-heading">
+          <aside
+            className="store-checkout"
+            id="kurv"
+            aria-labelledby="checkout-heading"
+          >
             <div className="store-checkout__topline">
-              <p>Demo-checkout</p>
-              <span>{itemCount} varer</span>
+              <p>DIN INDKØBSPOSE</p>
+              <span>
+                {itemCount} {itemCount === 1 ? "vare" : "varer"}
+              </span>
             </div>
             <h2 id="checkout-heading">Din kurv</h2>
 
@@ -345,10 +358,24 @@ export default function Home() {
               <ul className="store-cart-list">
                 {cartProducts.map((product) => (
                   <li key={product.id}>
-                    <div>
-                      <span>{cart[product.id]} ×</span> {product.name}
+                    <div className="store-cart-item">
+                      <span
+                        className="store-cart-thumb"
+                        style={{ backgroundPosition: product.imagePosition }}
+                        aria-hidden="true"
+                      />
+                      <div>
+                        <b>{product.name}</b>
+                        <small>
+                          {cart[product.id]} stk.{" "}
+                          <span aria-hidden="true">·</span> {product.age}+
+                          demovare
+                        </small>
+                      </div>
                     </div>
-                    <strong>{formatPrice(product.price * cart[product.id])}</strong>
+                    <strong>
+                      {formatPrice(product.price * cart[product.id])}
+                    </strong>
                   </li>
                 ))}
               </ul>
@@ -359,7 +386,9 @@ export default function Home() {
             )}
 
             <div className="store-checkout__total">
-              <span>Subtotal</span>
+              <span>
+                I alt <small>inkl. moms · demopriser</small>
+              </span>
               <strong>{formatPrice(subtotal)}</strong>
             </div>
 
@@ -441,7 +470,11 @@ export default function Home() {
                       aria-hidden="true"
                     />
                     <span translate="no">
-                      {loading ? "Åbner…" : `Bekræft ${requiredAge || ""}+ med MitID`}
+                      {loading
+                        ? "Åbner…"
+                        : requiredAge
+                          ? `Bekræft ${requiredAge}+ med MitID`
+                          : "Læg en vare i kurven"}
                     </span>
                   </button>
                 )}
@@ -474,8 +507,12 @@ export default function Home() {
 
       <section className="store-flow" aria-labelledby="flow-heading">
         <div className="store-shell">
-          <p className="store-eyebrow">Det originale eksempel</p>
-          <h2 id="flow-heading">Fra produktregel til verificeret checkout</h2>
+          <p className="store-eyebrow">EN NATURLIG DEL AF CHECKOUT</p>
+          <h2 id="flow-heading">
+            Lidt mindre friktion.
+            <br />
+            Lidt mere tryghed.
+          </h2>
           <ol>
             <li>
               <span>01</span>
@@ -485,7 +522,9 @@ export default function Home() {
             <li>
               <span>02</span>
               <h3>SDK’et starter MitID</h3>
-              <p>Npm-pakken håndterer redirect eller popup og validerer svaret.</p>
+              <p>
+                Npm-pakken håndterer redirect eller popup og validerer svaret.
+              </p>
             </li>
             <li>
               <span>03</span>
