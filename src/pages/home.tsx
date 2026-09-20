@@ -538,6 +538,33 @@ export default function Home() {
           </div>
         </div>
       </section>
+      <section className="store-signup" aria-labelledby="signup-heading">
+        <div className="store-shell store-signup__inner">
+          <div>
+            <p className="store-eyebrow">FRA DEMOBUTIK TIL DIN WEBSHOP</p>
+            <h2 id="signup-heading">Samme alderskontrol. Din egen webshop.</h2>
+            <p className="store-signup__description">
+              Opret en gratis testkonto, og prøv UNQVerify i dit eget setup.
+              Vælg WooCommerce-plugin, JavaScript SDK eller API.
+            </p>
+          </div>
+          <div className="store-signup__actions">
+            <a
+              className="store-button store-button--primary"
+              href="https://www.aldersverificering.dk/opret-konto"
+            >
+              Opret gratis testkonto <span aria-hidden="true">→</span>
+            </a>
+            <p>Gratis testmiljø · Intet kreditkort</p>
+            <a
+              className="store-text-link"
+              href="https://www.aldersverificering.dk/docs/getting-started"
+            >
+              Se integrationsmuligheder
+            </a>
+          </div>
+        </div>
+      </section>
     </main>
   );
 }
