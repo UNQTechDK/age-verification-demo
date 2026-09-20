@@ -1,22 +1,28 @@
-# UNQVerify Demo – Age Verification via MitID
+# NORDHANDEL – UNQVerify reference storefront
 
-Live demo of the [@unqtech/age-verification-mitid](https://www.npmjs.com/package/@unqtech/age-verification-mitid) SDK.
+An interactive reference storefront built with the [@unqtech/age-verification-mitid](https://www.npmjs.com/package/@unqtech/age-verification-mitid) SDK.
 
-This app demonstrates how to use the UNQVerify SDK to perform secure, cookie-based age verification using MitID – Denmark's national digital identity.
+The storefront calculates the highest age requirement in a fictional shopping cart and passes either `16` or `18` to the UNQVerify SDK. It demonstrates redirect and popup verification with MitID test credentials. No orders or payments are created.
 
 > 🔐 Want to verify user age in your own app or webshop?  
 > 👉 [Buy a subscription at aldersverificering.dk](https://www.aldersverificering.dk/)
 
 ---
 
-## 🌐 Live Demo
+## 🌐 Live demo
 
 [Try the demo on Vercel ↗](https://age-verification-demo.vercel.app)
+
+- `/` – realistic product and checkout flow
+- `/developer` – configurable SDK console
+- `/verification-result` and `/verify-popup` – SDK callback routes
 
 ---
 
 ## 🧠 Features
 
+- ✅ Product-based 16+ and 18+ checkout rules
+- ✅ Fictional cart and order completion without payment
 - ✅ React + Vite + Tailwind CSS
 - ✅ Dark/light mode toggle
 - ✅ Dynamic `ageToVerify` and `redirectUri`

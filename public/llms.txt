@@ -1,0 +1,22 @@
+# NORDHANDEL – UNQVerify demobutik
+
+> En fungerende referencebutik, der demonstrerer produktbaseret alderskontrol med UNQVerify npm-pakken og MitID-test.
+
+## Hvad demoen viser
+
+- Kurven beregner det højeste alderskrav blandt de valgte varer.
+- En 16+ vare sender `ageToVerify: 16` til SDK'et.
+- En 18+ vare eller en blandet kurv med en 18+ vare sender `ageToVerify: 18`.
+- Brugeren kan starte MitID-test via redirect eller popup.
+- Checkout kan først fortsætte, når det beregnede alderskrav er opfyldt.
+- Der oprettes ingen rigtig ordre, og der gennemføres ingen betaling.
+
+## Teknologi
+
+- Npm-pakke: [@unqtech/age-verification-mitid](https://www.npmjs.com/package/@unqtech/age-verification-mitid)
+- Teknisk konsol: [SDK-demo](https://age-verification-demo.vercel.app/developer)
+- Dokumentation: [Kom godt i gang](https://www.aldersverificering.dk/docs/getting-started)
+- Kildekode: [GitHub](https://github.com/UNQTechDK/age-verification-demo)
+- Produkt: [UNQVerify](https://www.aldersverificering.dk/)
+
+Alle produkter og butiksnavnet NORDHANDEL er fiktive og bruges kun til demonstration.

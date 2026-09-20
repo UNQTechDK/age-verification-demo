@@ -1,80 +1,89 @@
-import { useState } from "react";
-import { Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 
 export default function Layout() {
-  const [darkMode, setDarkMode] = useState(false);
+  const location = useLocation();
 
   return (
-    <div className={darkMode ? "dark" : ""} data-theme={darkMode ? "dark" : ""}>
-      <div className="min-h-screen flex flex-col justify-between bg-gray-100 dark:bg-slate-900 text-gray-800 dark:text-green-400 font-mono transition-colors">
-        <header className="p-4 text-xs flex justify-between items-center h-20">
-          <span>UNQVerify SDK Demo</span>
-          <button
-            onClick={() => setDarkMode(!darkMode)}
-            aria-label={darkMode ? "Switch to light mode" : "Switch to dark mode"}
-            className="text-xs px-3 py-1 border border-green-400 rounded hover:bg-green-700 hover:text-black dark:hover:bg-green-200 dark:hover:text-black transition-colors"
+    <div className="demo-site">
+      <a className="skip-link" href="#main-content">
+        Gå til hovedindhold
+      </a>
+      <header className="demo-header">
+        <div className="store-shell demo-header__inner">
+          <Link className="demo-brand" to="/" aria-label="UNQVerify demobutik">
+            <span className="demo-brand__mark" aria-hidden="true">
+              U
+            </span>
+            <span>
+              <strong>NORDHANDEL</strong>
+              <small>en UNQVerify-demobutik</small>
+            </span>
+          </Link>
+          <nav aria-label="Primær navigation">
+            <Link
+              to="/"
+              aria-current={location.pathname === "/" ? "page" : undefined}
+            >
+              Demobutik
+            </Link>
+            <Link
+              to="/developer"
+              aria-current={
+                location.pathname === "/developer" ? "page" : undefined
+              }
+            >
+              SDK-konsol
+            </Link>
+            <a href="https://www.aldersverificering.dk/docs/getting-started">
+              Dokumentation <span aria-hidden="true">↗</span>
+            </a>
+          </nav>
+          <a
+            className="demo-header__badge"
+            href="https://www.aldersverificering.dk"
           >
-            {darkMode ? "☀ Light Mode" : "🌙 Dark Mode"}
-          </button>
-        </header>
-        <main className="p-4 mx-4  flex-1 bg-white dark:bg-black flex flex-col justify-center">
-          {" "}
-          <Outlet />
-        </main>
-        <footer className="p-4 text-xs text-green-600 text-center space-y-2">
-          <p>&copy; {new Date().getFullYear()} UNQTech ApS</p>
-          <div className="space-x-4">
-            <a
-              href="https://www.aldersverificering.dk"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-green-300"
-            >
-              aldersverificering.dk
+            Testmiljø
+          </a>
+          <Link className="demo-header__mobile-link" to="/developer">
+            SDK
+          </Link>
+        </div>
+      </header>
+
+      <Outlet />
+
+      <footer className="demo-footer">
+        <div className="store-shell demo-footer__grid">
+          <div>
+            <p className="demo-footer__brand">NORDHANDEL</p>
+            <p>
+              En fungerende referencebutik bygget med UNQVerify og MitID-test.
+            </p>
+          </div>
+          <div>
+            <p className="demo-footer__label">Ressourcer</p>
+            <a href="https://www.aldersverificering.dk/docs/sdk/react">
+              Integrationsguide
             </a>
-            <a
-              href="https://www.aldersverificering.dk/docs/sdk/react"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-green-300 font-semibold"
-            >
-              UNQVerify Integration Documentation
+            <a href="https://www.npmjs.com/package/@unqtech/age-verification-mitid">
+              Npm-pakke
             </a>
-            <a
-              href="https://www.npmjs.com/package/@unqtech/age-verification-mitid"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-green-300"
-            >
-              NPM Package
-            </a>
-            <a
-              href="https://github.com/UNQTechDK/unqverify-sdk"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-green-300"
-            >
-              SDK GitHub
-            </a>
-            <a
-              href="https://github.com/UNQTechDK/age-verification-demo"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-green-300"
-            >
-              Demo Repo
-            </a>
-            <a
-              href="https://pp.mitid.dk/test-tool/frontend/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-green-300 font-semibold"
-            >
-              🧪 MitID Test Tool ↗
+            <a href="https://github.com/UNQTechDK/age-verification-demo">
+              Kildekode
             </a>
           </div>
-        </footer>
-      </div>
+          <div>
+            <p className="demo-footer__label">Om demoen</p>
+            <p>
+              Varer, butik og ordrer er fiktive. Der gennemføres ingen betaling.
+            </p>
+          </div>
+        </div>
+        <div className="store-shell demo-footer__bottom">
+          <span>© {new Date().getFullYear()} UNQTech ApS</span>
+          <span>MitID er et registreret varemærke tilhørende MitID.</span>
+        </div>
+      </footer>
     </div>
   );
 }
