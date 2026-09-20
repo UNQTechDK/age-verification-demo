@@ -11,7 +11,7 @@ The storefront calculates the highest age requirement in a fictional shopping ca
 
 ## 🌐 Live demo
 
-[Try the demo on Vercel ↗](https://age-verification-demo.vercel.app)
+[Try the demo ↗](https://demo.aldersverificering.dk)
 
 - `/` – realistic product and checkout flow
 - `/developer` – configurable SDK console
