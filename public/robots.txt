@@ -3,4 +3,4 @@ Allow: /
 Disallow: /verification-result
 Disallow: /verify-popup
 
-Sitemap: https://age-verification-demo.vercel.app/sitemap.xml
+Sitemap: https://demo.aldersverificering.dk/sitemap.xml

@@ -14,7 +14,7 @@
 ## Teknologi
 
 - Npm-pakke: [@unqtech/age-verification-mitid](https://www.npmjs.com/package/@unqtech/age-verification-mitid)
-- Teknisk konsol: [SDK-demo](https://age-verification-demo.vercel.app/developer)
+- Teknisk konsol: [SDK-demo](https://demo.aldersverificering.dk/developer)
 - Dokumentation: [Kom godt i gang](https://www.aldersverificering.dk/docs/getting-started)
 - Kildekode: [GitHub](https://github.com/UNQTechDK/age-verification-demo)
 - Produkt: [UNQVerify](https://www.aldersverificering.dk/)
