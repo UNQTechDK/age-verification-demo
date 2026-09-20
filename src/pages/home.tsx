@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   getVerifiedAge,
   init,
@@ -9,301 +9,496 @@ import {
   type VerificationOutcome,
 } from "@unqtech/age-verification-mitid";
 
+type Product = {
+  id: "lager" | "aperitif" | "mint";
+  name: string;
+  description: string;
+  price: number;
+  age: 16 | 18;
+  imagePosition: string;
+  imageZoom: number;
+};
+
+const products: Product[] = [
+  {
+    id: "lager",
+    name: "Kyst Lager",
+    description: "Lys, alkoholfri demovare med et konfigureret 16-årskrav.",
+    price: 42,
+    age: 16,
+    imagePosition: "82% 48%",
+    imageZoom: 2.35,
+  },
+  {
+    id: "aperitif",
+    name: "Fjord Aperitif",
+    description: "Fiktiv spiritusvare, der løfter kurvens alderskrav til 18 år.",
+    price: 249,
+    age: 18,
+    imagePosition: "58% 48%",
+    imageZoom: 2,
+  },
+  {
+    id: "mint",
+    name: "Nord Mint",
+    description: "Fiktiv nikotinpose til demonstration af et fast 18-årskrav.",
+    price: 49,
+    age: 18,
+    imagePosition: "94% 78%",
+    imageZoom: 2.7,
+  },
+];
+
+function getOutcomeMessage(outcome: VerificationOutcome): string {
+  switch (outcome.code) {
+    case "UNDER_AGE":
+      return "Alderskravet blev ikke opfyldt.";
+    case "POPUP_CLOSED":
+    case "USER_CANCELLED":
+    case "POPUP_TIMEOUT":
+      return "Verifikationen blev afbrudt, før den var færdig.";
+    case "POPUP_BLOCKED":
+      return "Popup-vinduet blev blokeret. Tillad popups, og prøv igen.";
+    case "NETWORK_ERROR":
+      return "Der opstod en netværksfejl. Prøv igen.";
+    case "TOKEN_INVALID":
+      return "Verifikationssvaret kunne ikke valideres. Prøv igen.";
+    case "UNTRUSTED_ORIGIN":
+      return "Verifikationssvaret kom fra en ukendt kilde og blev afvist.";
+    default:
+      return outcome.message || "Verifikationen kunne ikke gennemføres.";
+  }
+}
+
+function formatPrice(price: number) {
+  return new Intl.NumberFormat("da-DK", {
+    style: "currency",
+    currency: "DKK",
+    maximumFractionDigits: 0,
+  }).format(price);
+}
+
 export default function Home() {
-  const [verified, setVerified] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [ageToVerify, setAgeToVerify] = useState(18);
-
+  const [cart, setCart] = useState<Record<Product["id"], number>>({
+    lager: 1,
+    aperitif: 0,
+    mint: 0,
+  });
   const [mode, setMode] = useState<"redirect" | "popup">("redirect");
+  const [verifiedAge, setVerifiedAge] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [orderComplete, setOrderComplete] = useState(false);
+
+  const cartProducts = useMemo(
+    () => products.filter((product) => cart[product.id] > 0),
+    [cart],
+  );
+  const itemCount = cartProducts.reduce(
+    (total, product) => total + cart[product.id],
+    0,
+  );
+  const subtotal = cartProducts.reduce(
+    (total, product) => total + product.price * cart[product.id],
+    0,
+  );
+  const requiredAge = cartProducts.reduce(
+    (highest, product) => Math.max(highest, product.age),
+    0,
+  );
+  const isAgeApproved =
+    isVerified() && verifiedAge !== null && verifiedAge >= requiredAge;
+
+  const refreshVerification = () => {
+    const age = getVerifiedAge();
+    setVerifiedAge(typeof age === "number" ? age : null);
+  };
 
   useEffect(() => {
-    setVerified(isVerified());
-  }, []);
-
-  useEffect(() => {
-    const handler = () => setVerified(isVerified());
+    refreshVerification();
+    const handler = () => refreshVerification();
     window.addEventListener("unqverify:updated", handler);
     return () => window.removeEventListener("unqverify:updated", handler);
   }, []);
 
-  const getOutcomeMessage = (outcome: VerificationOutcome): string => {
-    switch (outcome.code) {
-      case "UNDER_AGE":
-        return "Age requirement not met.";
-      case "POPUP_CLOSED":
-      case "USER_CANCELLED":
-      case "POPUP_TIMEOUT":
-        return "Verification was cancelled before completion.";
-      case "POPUP_BLOCKED":
-        return "Popup blocked. Please allow popups and try again.";
-      case "NETWORK_ERROR":
-        return "Network error during verification. Please try again.";
-      case "TOKEN_INVALID":
-        return "Verification token was invalid. Please try again.";
-      case "UNTRUSTED_ORIGIN":
-        return "Blocked verification message from untrusted origin.";
-      default:
-        return outcome.message || "Verification failed.";
-    }
+  useEffect(() => {
+    setOrderComplete(false);
+    setErrorMessage("");
+  }, [cart]);
+
+  const updateQuantity = (id: Product["id"], delta: number) => {
+    setCart((current) => ({
+      ...current,
+      [id]: Math.max(0, Math.min(9, current[id] + delta)),
+    }));
   };
 
-  const handleStartRedirect = () => {
-    setLoading(true);
-    setErrorMessage("");
+  const configureVerification = () => {
+    const redirectPath =
+      mode === "popup" ? "/verify-popup" : "/verification-result";
+    const redirectUri = `${window.location.origin}${redirectPath}`;
 
     init({
       publicKey: import.meta.env.VITE_PUBLIC_KEY,
-      ageToVerify,
-      redirectUri: window.location.origin + "/verification-result",
-      onVerified: (payload) => {
-        console.log("✅ Verified via redirect:", payload);
+      ageToVerify: requiredAge,
+      redirectUri,
+      onVerified: () => {
         setLoading(false);
-        setVerified(true);
-      },
-      onDenied: (outcome) => {
-        console.warn("⚠️ Verification denied:", outcome);
-        setLoading(false);
-        setVerified(false);
-        setErrorMessage(getOutcomeMessage(outcome));
-      },
-      onCancelled: (outcome) => {
-        console.warn("⚠️ Verification cancelled:", outcome);
-        setLoading(false);
-        setVerified(false);
-        setErrorMessage(getOutcomeMessage(outcome));
-      },
-      onError: (outcome) => {
-        console.error("❌ Verification error:", outcome);
-        setLoading(false);
-        setVerified(false);
-        setErrorMessage(getOutcomeMessage(outcome));
-      },
-      onFailure: (error) => {
-        // Legacy callback is still emitted by the SDK for compatibility.
-        console.warn("⚠️ Legacy onFailure callback:", error);
-      },
-    });
-
-    startVerificationWithRedirect();
-  };
-
-  const handleStartPopup = () => {
-    const popup = window.open("", "unqverify-popup", "width=500,height=650");
-
-    if (!popup) {
-      setErrorMessage(
-        "Popup blocked. Please enable popups in your browser and try again.",
-      );
-      return;
-    }
-
-    setLoading(true);
-    setErrorMessage("");
-
-    init({
-      publicKey: import.meta.env.VITE_PUBLIC_KEY,
-      ageToVerify,
-      redirectUri: window.location.origin + "/verify-popup",
-      onVerified: (payload) => {
-        console.log("✅ Verified via popup (SDK callback):", payload);
-        setLoading(false);
-        setVerified(true);
         setErrorMessage("");
+        refreshVerification();
       },
       onDenied: (outcome) => {
-        console.warn("⚠️ Popup verification denied:", outcome);
         setLoading(false);
-        setVerified(false);
         setErrorMessage(getOutcomeMessage(outcome));
+        refreshVerification();
       },
       onCancelled: (outcome) => {
-        console.warn("⚠️ Popup verification cancelled:", outcome);
         setLoading(false);
-        setVerified(false);
         setErrorMessage(getOutcomeMessage(outcome));
       },
       onError: (outcome) => {
-        console.error("❌ Popup verification error:", outcome);
         setLoading(false);
-        setVerified(false);
         setErrorMessage(getOutcomeMessage(outcome));
       },
       onFailure: () => {
-        // Intentionally no-op: granular callbacks above handle UI state.
+        setLoading(false);
+        setErrorMessage(
+          "Testflowet kunne ikke startes. Kontrollér testmiljøet, og prøv igen.",
+        );
       },
     });
+  };
 
-    startVerificationWithPopup(popup);
+  const startVerification = () => {
+    if (!requiredAge) return;
+
+    setLoading(true);
+    setErrorMessage("");
+    setOrderComplete(false);
+
+    if (mode === "popup") {
+      const popup = window.open(
+        "",
+        "unqverify-popup",
+        "width=500,height=650",
+      );
+
+      if (!popup) {
+        setLoading(false);
+        setErrorMessage(
+          "Popup-vinduet blev blokeret. Tillad popups, og prøv igen.",
+        );
+        return;
+      }
+
+      configureVerification();
+      startVerificationWithPopup(popup);
+      return;
+    }
+
+    configureVerification();
+    startVerificationWithRedirect();
+  };
+
+  const clearVerification = () => {
+    resetVerification();
+    setVerifiedAge(null);
+    setLoading(false);
+    setErrorMessage("");
+    setOrderComplete(false);
   };
 
   return (
-    <div>
-      <section className="flex flex-col items-center justify-center bg-white dark:bg-black text-blue-500 dark:text-green-400 p-6 font-mono transition-colors">
-        <div className="w-full max-w-2xl bg-white dark:bg-[#0d0d0d] border border-violet-700 dark:border-green-500 p-6 rounded shadow-lg space-y-6">
-          <h1 className="text-2xl text-blue-500 dark:text-green-300 tracking-widest text-center">
-            ░░ UNQVerify Demo ░░
-          </h1>
-
-          <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-400 dark:border-amber-600 rounded p-4 space-y-2">
-            <div className="flex items-start gap-2">
-              <div className="flex-1">
-                <h2 className="font-bold text-amber-800 dark:text-amber-300 text-sm uppercase tracking-wide mb-1">
-                  Test Mode Active
-                </h2>
-                <p className="text-amber-700 dark:text-amber-400 text-xs leading-relaxed">
-                  This demo uses test credentials. To complete verification, you
-                  need MitID test credentials from the official test tool.
-                </p>
-                <a
-                  href="https://pp.mitid.dk/test-tool/frontend/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 mt-2 text-sm font-semibold text-amber-800 dark:text-amber-300 hover:text-amber-900 dark:hover:text-amber-200 underline"
-                >
-                  → Get test credentials at pp.mitid.dk ↗
-                </a>
-              </div>
+    <main id="main-content">
+      <section className="store-hero">
+        <div className="store-shell store-hero__grid">
+          <div className="store-hero__copy">
+            <p className="store-eyebrow">Interaktiv referencebutik</p>
+            <h1>Alderskontrol, hvor den faktisk skal virke.</h1>
+            <p className="store-hero__intro">
+              Læg en demovare i kurven, og se hvordan UNQVerify beregner
+              alderskravet og starter MitID direkte fra checkout.
+            </p>
+            <div className="store-hero__actions">
+              <a className="store-button store-button--primary" href="#varer">
+                Prøv checkout-flowet
+              </a>
+              <a className="store-text-link" href="/developer">
+                Se SDK-konsollen <span aria-hidden="true">↗</span>
+              </a>
             </div>
+            <dl className="store-proof">
+              <div>
+                <dt>SDK</dt>
+                <dd>@unqtech/age-verification-mitid</dd>
+              </div>
+              <div>
+                <dt>Miljø</dt>
+                <dd>MitID test</dd>
+              </div>
+              <div>
+                <dt>Data til butikken</dt>
+                <dd>Verificeret alderskrav</dd>
+              </div>
+            </dl>
+          </div>
+          <figure className="store-hero__visual">
+            <img
+              src="/demo-products-v1.webp"
+              alt="Tre fiktive demovarer: aperitif, øl og nikotinposer"
+              width="1536"
+              height="1024"
+              fetchPriority="high"
+            />
+            <figcaption>
+              Fiktive varer · ingen betaling · kun testdata
+            </figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section className="store-demo" id="varer" aria-labelledby="products-heading">
+        <div className="store-shell store-demo__heading">
+          <div>
+            <p className="store-eyebrow">Vælg et scenarie</p>
+            <h2 id="products-heading">Byg en kurv med et rigtigt alderskrav</h2>
+          </div>
+          <p>
+            Checkout anvender altid det højeste krav i kurven. Bland eksempelvis
+            en 16+ vare med en 18+ vare og se reglen ændre sig.
+          </p>
+        </div>
+
+        <div className="store-shell store-demo__layout">
+          <div className="store-products">
+            {products.map((product, index) => (
+              <article className="store-product" key={product.id}>
+                <div className="store-product__image">
+                  <img
+                    src="/demo-products-v1.webp"
+                    alt=""
+                    width="1536"
+                    height="1024"
+                    loading="lazy"
+                    style={{
+                      objectPosition: product.imagePosition,
+                      transformOrigin: product.imagePosition,
+                      transform: `scale(${product.imageZoom})`,
+                    }}
+                  />
+                  <span className="store-age-badge">{product.age}+</span>
+                  <span className="store-product__number">
+                    0{index + 1}
+                  </span>
+                </div>
+                <div className="store-product__body">
+                  <div className="store-product__title-row">
+                    <h3>{product.name}</h3>
+                    <p>{formatPrice(product.price)}</p>
+                  </div>
+                  <p className="store-product__description">
+                    {product.description}
+                  </p>
+                  {cart[product.id] ? (
+                    <div
+                      className="store-quantity"
+                      aria-label={`Antal ${product.name}`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(product.id, -1)}
+                        aria-label={`Fjern en ${product.name}`}
+                      >
+                        −
+                      </button>
+                      <span>{cart[product.id]}</span>
+                      <button
+                        type="button"
+                        onClick={() => updateQuantity(product.id, 1)}
+                        aria-label={`Tilføj en ${product.name}`}
+                      >
+                        +
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      className="store-add-button"
+                      type="button"
+                      onClick={() => updateQuantity(product.id, 1)}
+                    >
+                      Læg i kurv <span aria-hidden="true">+</span>
+                    </button>
+                  )}
+                </div>
+              </article>
+            ))}
           </div>
 
-          <div className="space-y-4">
-            <fieldset>
-              <legend className="block uppercase text-sm mb-1">
-                Verification Mode
-              </legend>
-              <div className="flex items-center gap-4">
-                <label>
-                  <input
-                    type="radio"
-                    name="mode"
-                    value="redirect"
-                    checked={mode === "redirect"}
-                    onChange={() => setMode("redirect")}
-                    className="mr-1"
-                  />
-                  Redirect
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name="mode"
-                    value="popup"
-                    checked={mode === "popup"}
-                    onChange={() => setMode("popup")}
-                    className="mr-1"
-                  />
-                  Popup
-                </label>
-              </div>
-            </fieldset>
-
-            <div>
-              <label
-                htmlFor="age-to-verify"
-                className="block uppercase text-sm mb-1"
-              >
-                Age to Verify
-              </label>
-              <input
-                id="age-to-verify"
-                name="ageToVerify"
-                type="number"
-                inputMode="numeric"
-                autoComplete="off"
-                min="1"
-                max="120"
-                value={ageToVerify}
-                onChange={(e) => {
-                  const val = Number(e.target.value);
-                  if (val >= 1 && val <= 120) setAgeToVerify(val);
-                }}
-                className="w-full dark:bg-black  text-blue-500 dark:text-green-300 border border-violet-700 dark:border-green-500 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-violet-400 dark:focus:ring-green-500"
-              />
+          <aside className="store-checkout" aria-labelledby="checkout-heading">
+            <div className="store-checkout__topline">
+              <p>Demo-checkout</p>
+              <span>{itemCount} varer</span>
             </div>
+            <h2 id="checkout-heading">Din kurv</h2>
 
-            {mode === "popup" && !verified && (
-              <p className="text-xs text-slate-600 dark:text-slate-300">
-                Verification opens in a new window.
+            {cartProducts.length ? (
+              <ul className="store-cart-list">
+                {cartProducts.map((product) => (
+                  <li key={product.id}>
+                    <div>
+                      <span>{cart[product.id]} ×</span> {product.name}
+                    </div>
+                    <strong>{formatPrice(product.price * cart[product.id])}</strong>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="store-empty-cart">
+                Læg en vare i kurven for at prøve alderskontrollen.
               </p>
             )}
 
-            <div className="verification-actions flex items-center gap-4 mt-6">
-              {verified ? (
-                <span className="rounded border border-green-600 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800 dark:border-green-500 dark:bg-green-950 dark:text-green-300">
-                  ✔ Already verified
-                </span>
-              ) : (
-                <button
-                  type="button"
-                  onClick={
-                    mode === "popup" ? handleStartPopup : handleStartRedirect
-                  }
-                  disabled={loading}
-                  aria-busy={loading}
-                  className="mitid-cta"
-                >
-                  <img
-                    className="mitid-cta__logo"
-                    src="/mitid-logo-white.png"
-                    alt=""
-                    width="732"
-                    height="198"
-                    aria-hidden="true"
-                  />
-                  <span translate="no">Confirm with MitID</span>
-                </button>
-              )}
-
-              <span className="sr-only" role="status" aria-live="polite">
-                {loading ? "Verification is starting" : ""}
-              </span>
-
-              <button
-                type="button"
-                onClick={() => {
-                  resetVerification();
-                  setVerified(false);
-                  setLoading(false);
-                  setErrorMessage("");
-                }}
-                className="verification-reset text-xs underline text-red-400 hover:text-red-300 cursor-pointer transition duration-150"
-              >
-                Reset
-              </button>
+            <div className="store-checkout__total">
+              <span>Subtotal</span>
+              <strong>{formatPrice(subtotal)}</strong>
             </div>
 
-            {verified && (
+            {requiredAge ? (
+              <div className="store-requirement" aria-live="polite">
+                <div className="store-requirement__age">{requiredAge}+</div>
+                <div>
+                  <strong>Kurvens alderskrav</strong>
+                  <p>Bestemmes af varen med det højeste krav.</p>
+                </div>
+              </div>
+            ) : null}
+
+            {isAgeApproved ? (
+              <div className="store-approved">
+                <span aria-hidden="true">✓</span>
+                <div>
+                  <strong>Alderskontrol gennemført</strong>
+                  <p>Verificeret til {verifiedAge}+ i denne browser.</p>
+                </div>
+              </div>
+            ) : null}
+
+            {orderComplete ? (
+              <div className="store-order-complete" role="status">
+                <span>Demoordre gennemført</span>
+                <p>Der er ikke oprettet en ordre eller gennemført betaling.</p>
+              </div>
+            ) : (
               <>
-                <p className="dark:text-green-400 text-sm mt-2">
-                  ✅ Verified — cookie active until token expires.
-                </p>
-                <p className="dark:text-green-400 text-sm ">
-                  Age verified: {getVerifiedAge()}
-                </p>
+                {!isAgeApproved && requiredAge ? (
+                  <fieldset className="store-mode">
+                    <legend>Åbn MitID med</legend>
+                    <label>
+                      <input
+                        type="radio"
+                        name="mode"
+                        value="redirect"
+                        checked={mode === "redirect"}
+                        onChange={() => setMode("redirect")}
+                      />
+                      Redirect
+                    </label>
+                    <label>
+                      <input
+                        type="radio"
+                        name="mode"
+                        value="popup"
+                        checked={mode === "popup"}
+                        onChange={() => setMode("popup")}
+                      />
+                      Popup
+                    </label>
+                  </fieldset>
+                ) : null}
+
+                {isAgeApproved ? (
+                  <button
+                    className="store-button store-button--primary store-button--full"
+                    type="button"
+                    onClick={() => setOrderComplete(true)}
+                  >
+                    Gennemfør demoordre
+                  </button>
+                ) : (
+                  <button
+                    className="mitid-cta store-button--full"
+                    type="button"
+                    onClick={startVerification}
+                    disabled={!requiredAge || loading}
+                    aria-busy={loading}
+                  >
+                    <img
+                      className="mitid-cta__logo"
+                      src="/mitid-logo-white.png"
+                      alt=""
+                      width="732"
+                      height="198"
+                      aria-hidden="true"
+                    />
+                    <span translate="no">
+                      {loading ? "Åbner…" : `Bekræft ${requiredAge || ""}+ med MitID`}
+                    </span>
+                  </button>
+                )}
               </>
             )}
-            {errorMessage && (
-              <div className="bg-red-50 dark:bg-red-900/20 border border-red-400 dark:border-red-600 rounded p-3 mt-2">
-                <p className="text-red-600 dark:text-red-400 text-sm font-semibold">
-                  ❌ {errorMessage}
-                </p>
-                <p className="text-red-600 dark:text-red-400 text-xs mt-1">
-                  Need test credentials?{" "}
-                  <a
-                    href="https://pp.mitid.dk/test-tool/frontend/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="underline hover:text-red-500 dark:hover:text-red-300"
-                  >
-                    Visit pp.mitid.dk ↗
-                  </a>
-                </p>
-              </div>
-            )}
+
+            {errorMessage ? (
+              <p className="store-error" role="alert">
+                {errorMessage}
+              </p>
+            ) : null}
+
+            {verifiedAge !== null ? (
+              <button
+                className="store-reset"
+                type="button"
+                onClick={clearVerification}
+              >
+                Nulstil testverifikation
+              </button>
+            ) : null}
+
+            <p className="store-test-note">
+              Testmiljø: Du skal bruge MitID-testlegitimationsoplysninger fra
+              den officielle testportal. Ingen betaling gennemføres.
+            </p>
+          </aside>
+        </div>
+      </section>
+
+      <section className="store-flow" aria-labelledby="flow-heading">
+        <div className="store-shell">
+          <p className="store-eyebrow">Det originale eksempel</p>
+          <h2 id="flow-heading">Fra produktregel til verificeret checkout</h2>
+          <ol>
+            <li>
+              <span>01</span>
+              <h3>Kurven fastlægger kravet</h3>
+              <p>Den strengeste produktregel bliver sendt som ageToVerify.</p>
+            </li>
+            <li>
+              <span>02</span>
+              <h3>SDK’et starter MitID</h3>
+              <p>Npm-pakken håndterer redirect eller popup og validerer svaret.</p>
+            </li>
+            <li>
+              <span>03</span>
+              <h3>Checkout får et resultat</h3>
+              <p>Butikken fortsætter først, når alderskravet er opfyldt.</p>
+            </li>
+          </ol>
+          <div className="store-code-line">
+            <code>{`init({ ageToVerify: ${requiredAge || 18}, redirectUri })`}</code>
+            <a href="/developer">Åbn den tekniske demo</a>
           </div>
         </div>
       </section>
-    </div>
+    </main>
   );
 }

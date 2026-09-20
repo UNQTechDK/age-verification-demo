@@ -5,12 +5,14 @@ import ReactDOM from "react-dom/client";
 import VerificationResult from "./pages/verificationResult";
 import Layout from "./pages/Layout";
 import VerifyPopup from "./pages/verificationPopup";
+import Developer from "./pages/developer";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
+        <Route path="/developer" element={<Developer />} />
         <Route path="/verification-result" element={<VerificationResult />} />
         <Route path="/verify-popup" element={<VerifyPopup />} />
       </Route>
